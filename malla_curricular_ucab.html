@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malla Curricular - Ingeniería Informática UCAB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Colores según el PDF de UCAB */
+            --color-FI: #E3F2FD;      /* Formación Integral - Azul muy claro */
+            --color-FG: #FFF3E0;      /* Formación Gerencial - Naranja claro */
+            --color-CC: #E1F5FE;      /* Ciencias Computación - Azul cyan */
+            --color-IN: #E8F5E9;      /* Informática - Verde claro */
+            --color-IS: #FCE4EC;      /* Ingeniería Software - Rosa claro */
+            --color-TE: #FFF9C4;      /* Telemática - Amarillo claro */
+            --color-EL: #F3E5F5;      /* Electiva - Morado claro */
+            --color-PP: #FFECB3;      /* Práctica Profesional */
+            --color-SC: #E0F2F1;      /* Servicio Comunitario */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 10px;
+            overflow-x: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #1565C0;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .instructions {
+            background: #E3F2FD;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            border-left: 4px solid #1565C0;
+        }
+
+        .stats {
+            background: white;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1565C0;
+        }
+
+        .malla-wrapper {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .malla-container {
+            display: flex;
+            gap: 8px;
+            min-width: max-content;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .semester {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 180px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .semester-title {
+            background: #1565C0;
+            color: white;
+            text-align: center;
+            padding: 10px 5px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .semester-uc {
+            font-size: 0.7rem;
+            opacity: 0.95;
+        }
+
+        .subject {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            min-height: 75px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .subject:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .subject.aprobada {
+            border-color: #4CAF50;
+            border-width: 3px;
+            background: #E8F5E9;
+        }
+
+        .subject.cursando {
+            border-color: #2196F3;
+            border-width: 3px;
+            background: #E3F2FD;
+        }
+
+        .subject.reprobada {
+            border-color: #F44336;
+            border-width: 3px;
+            background: #FFEBEE;
+        }
+
+        .subject-name {
+            font-size: 0.72rem;
+            line-height: 1.2;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 6px;
+        }
+
+        .subject-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.65rem;
+            margin-top: 4px;
+        }
+
+        .subject-uc {
+            background: rgba(21, 101, 192, 0.15);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            color: #1565C0;
+        }
+
+        .subject-type {
+            font-size: 0.6rem;
+            color: #666;
+            background: rgba(0,0,0,0.05);
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .status-icon {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 1rem;
+        }
+
+        /* Colores de fondo por tipo */
+        .type-FI { background: var(--color-FI); }
+        .type-FG { background: var(--color-FG); }
+        .type-CC { background: var(--color-CC); }
+        .type-IN { background: var(--color-IN); }
+        .type-IS { background: var(--color-IS); }
+        .type-TE { background: var(--color-TE); }
+        .type-EL { background: var(--color-EL); }
+        .type-PP { background: var(--color-PP); }
+        .type-SC { background: var(--color-SC); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-header h3 {
+            color: #1565C0;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .modal-meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #999;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1565C0;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            background: #1565C0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-save:hover {
+            background: #0D47A1;
+        }
+
+        .legend {
+            background: white;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .legend h3 {
+            color: #1565C0;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .legend-box {
+            width: 25px;
+            height: 25px;
+            border-radius: 3px;
+            border: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>INGENIERÍA INFORMÁTICA - UCAB</h1>
+        <p>Malla Curricular • Septiembre 2023</p>
+    </div>
+
+    <div class="instructions">
+        <strong>💡 Instrucciones:</strong> <strong>Click izquierdo</strong> → Marcar como aprobada/pendiente • <strong>Click derecho</strong> → Editar detalles completos • Los datos se guardan automáticamente
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-label">Aprobadas</span>
+            <div class="stat-value" id="stat-aprobadas">0</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">UC Aprobadas</span>
+            <div class="stat-value" id="stat-uc">0/240</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Cursando</span>
+            <div class="stat-value" id="stat-cursando" style="color: #2196F3;">0</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Índice</span>
+            <div class="stat-value" id="stat-indice">0.00</div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Progreso</span>
+            <div class="stat-value" id="stat-progreso" style="color: #4CAF50;">0%</div>
+        </div>
+    </div>
+
+    <div class="malla-wrapper">
+        <canvas id="canvas"></canvas>
+        <div class="malla-container" id="malla"></div>
+    </div>
+
+    <div class="legend">
+        <h3>📋 Leyenda de Áreas</h3>
+        <div class="legend-grid">
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-FI);"></div>
+                <span>Formación Integral (FI)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-FG);"></div>
+                <span>Formación Gerencial (FG)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-CC);"></div>
+                <span>Ciencias de la Computación (CC)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-IN);"></div>
+                <span>Informática (IN)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-IS);"></div>
+                <span>Ingeniería de Software (IS)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-TE);"></div>
+                <span>Telemática (TE)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-EL);"></div>
+                <span>Electiva (EL)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: var(--color-PP);"></div>
+                <span>Práctica Profesional (PP)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <div class="modal-meta" id="modal-meta"></div>
+            </div>
+            <div class="form-group">
+                <label>Estado</label>
+                <select id="input-status">
+                    <option value="pendiente">⚪ Pendiente</option>
+                    <option value="cursando">🔵 Cursando</option>
+                    <option value="aprobada">✅ Aprobada</option>
+                    <option value="reprobada">❌ Reprobada</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nota (0-20)</label>
+                <input type="number" id="input-grade" min="0" max="20" step="0.01" placeholder="Ej: 16.5">
+            </div>
+            <div class="form-group">
+                <label>Profesor</label>
+                <input type="text" id="input-prof" placeholder="Nombre del profesor">
+            </div>
+            <div class="form-group">
+                <label>Período</label>
+                <input type="text" id="input-period" placeholder="Ej: Sep-Ene 2024">
+            </div>
+            <div class="form-group">
+                <label>Notas / Enlaces</label>
+                <textarea id="input-notes" rows="3" placeholder="Drive, Classroom, comentarios..."></textarea>
+            </div>
+            <button class="btn-save" onclick="saveSubject()">💾 Guardar</button>
+        </div>
+    </div>
+
+    <script>
+        // DATOS DE LA MALLA (EXACTOS DEL PDF)
+        const subjects = [
+            // SEMESTRE 1
+            { id: 1, sem: 1, name: 'Álgebra y Trigonometría', uc: 5, type: 'FI', prereq: [] },
+            { id: 2, sem: 1, name: 'Competencia Textual en Español', uc: 5, type: 'FG', prereq: [] },
+            { id: 3, sem: 1, name: 'Lógica y Programación', uc: 5, type: 'CC', prereq: [] },
+            { id: 4, sem: 1, name: 'Identidad, Liderazgo y Compromiso I', uc: 3, type: 'FG', prereq: [] },
+            { id: 5, sem: 1, name: 'Inglés I', uc: 4, type: 'FG', prereq: [] },
+            { id: 6, sem: 1, name: 'Principios de Marketing', uc: 3, type: 'FG', prereq: [] },
+            
+            // SEMESTRE 2
+            { id: 7, sem: 2, name: 'Cálculo Diferencial', uc: 5, type: 'FI', prereq: [1] },
+            { id: 8, sem: 2, name: 'Fundamentos de Programación', uc: 5, type: 'CC', prereq: [3] },
+            { id: 9, sem: 2, name: 'Lógica', uc: 3, type: 'FG', prereq: [] },
+            { id: 10, sem: 2, name: 'Física General', uc: 5, type: 'FI', prereq: [1] },
+            { id: 11, sem: 2, name: 'Inglés II', uc: 4, type: 'FG', prereq: [5] },
+            { id: 12, sem: 2, name: 'Contabilidad Financiera', uc: 5, type: 'FG', prereq: [] },
+            
+            // SEMESTRE 3
+            { id: 13, sem: 3, name: 'Cálculo Integral', uc: 5, type: 'FI', prereq: [7] },
+            { id: 14, sem: 3, name: 'Algoritmos y Programación', uc: 5, type: 'CC', prereq: [8] },
+            { id: 15, sem: 3, name: 'Matemáticas Discretas', uc: 4, type: 'FI', prereq: [9] },
+            { id: 16, sem: 3, name: 'Laboratorio de Física', uc: 2, type: 'FI', prereq: [10] },
+            { id: 17, sem: 3, name: 'Ecología, Ambiente y Sustentabilidad', uc: 2, type: 'FG', prereq: [] },
+            { id: 18, sem: 3, name: 'Álgebra Lineal', uc: 6, type: 'FI', prereq: [1] },
+            
+            // SEMESTRE 4
+            { id: 19, sem: 4, name: 'Cálculo Vectorial', uc: 5, type: 'FI', prereq: [13] },
+            { id: 20, sem: 4, name: 'Programación Orientada a Objetos', uc: 5, type: 'CC', prereq: [14] },
+            { id: 21, sem: 4, name: 'Organización del Computador', uc: 3, type: 'CC', prereq: [] },
+            { id: 22, sem: 4, name: 'Electricidad y Magnetismo', uc: 4, type: 'FI', prereq: [10] },
+            { id: 23, sem: 4, name: 'Identidad, Liderazgo y Compromiso II', uc: 4, type: 'FG', prereq: [4] },
+            { id: 24, sem: 4, name: 'Ecuaciones Diferenciales Ordinarias', uc: 5, type: 'FI', prereq: [13] },
+            
+            // SEMESTRE 5
+            { id: 25, sem: 5, name: 'Probabilidad y Estadística', uc: 5, type: 'FI', prereq: [19] },
+            { id: 26, sem: 5, name: 'Algoritmos y Estructuras de Datos', uc: 5, type: 'CC', prereq: [20] },
+            { id: 27, sem: 5, name: 'Arquitectura del Computador Aplicada', uc: 3, type: 'CC', prereq: [21] },
+            { id: 28, sem: 5, name: 'Sistemas de Información', uc: 4, type: 'IN', prereq: [20] },
+            { id: 29, sem: 5, name: 'Inglés Técnico', uc: 3, type: 'FG', prereq: [11] },
+            { id: 30, sem: 5, name: 'Ingeniería Económica', uc: 6, type: 'FG', prereq: [] },
+            
+            // SEMESTRE 6
+            { id: 31, sem: 6, name: 'Métodos Numéricos', uc: 4, type: 'FI', prereq: [25] },
+            { id: 32, sem: 6, name: 'Programación Orientada a la Web', uc: 5, type: 'CC', prereq: [26] },
+            { id: 33, sem: 6, name: 'Sistemas Operativos', uc: 5, type: 'CC', prereq: [27] },
+            { id: 34, sem: 6, name: 'Sistemas de Bases de Datos', uc: 6, type: 'IN', prereq: [26] },
+            { id: 35, sem: 6, name: 'Innovación y Emprendimiento', uc: 2, type: 'FG', prereq: [] },
+            { id: 36, sem: 6, name: 'Ética Profesional', uc: 3, type: 'FG', prereq: [] },
+            
+            // SEMESTRE 7
+            { id: 37, sem: 7, name: 'Investigación de Operaciones', uc: 4, type: 'FI', prereq: [31] },
+            { id: 38, sem: 7, name: 'Tópicos Especiales de Programación', uc: 3, type: 'CC', prereq: [32] },
+            { id: 39, sem: 7, name: 'Redes de Comunicación de Datos', uc: 6, type: 'TE', prereq: [33] },
+            { id: 40, sem: 7, name: 'Ingeniería de Requisitos', uc: 3, type: 'IS', prereq: [28] },
+            { id: 41, sem: 7, name: 'Tópicos Especiales para la Gestión de Datos', uc: 3, type: 'IN', prereq: [34] },
+            { id: 42, sem: 7, name: 'Interacción Humano-Computador', uc: 4, type: 'IS', prereq: [] },
+            
+            // SEMESTRE 8
+            { id: 43, sem: 8, name: 'Evaluación de Sistemas Informáticos', uc: 3, type: 'IN', prereq: [37] },
+            { id: 44, sem: 8, name: 'Desarrollo de Software', uc: 5, type: 'IS', prereq: [40] },
+            { id: 45, sem: 8, name: 'Ciberseguridad', uc: 5, type: 'TE', prereq: [39] },
+            { id: 46, sem: 8, name: 'Ingeniería de Software', uc: 4, type: 'IS', prereq: [40] },
+            { id: 47, sem: 8, name: 'Inteligencia de Negocios', uc: 3, type: 'IN', prereq: [41] },
+            { id: 48, sem: 8, name: 'Aseguramiento de la Calidad del Software', uc: 5, type: 'IS', prereq: [44] },
+            { id: 49, sem: 8, name: 'Electiva Informática I', uc: 4, type: 'EL', prereq: [] },
+            
+            // Materias adicionales (fuera del grid principal)
+            { id: 50, sem: 9, name: 'Gestión de Proyectos de Software', uc: 4, type: 'IS', prereq: [46] },
+            { id: 51, sem: 9, name: 'Inteligencia Artificial y Machine Learning', uc: 5, type: 'CC', prereq: [] },
+            { id: 52, sem: 9, name: 'Computación en la Nube', uc: 5, type: 'TE', prereq: [] },
+            { id: 53, sem: 9, name: 'Arquitecturas Empresariales', uc: 5, type: 'IS', prereq: [] },
+            { id: 54, sem: 9, name: 'Electiva Informática II', uc: 4, type: 'EL', prereq: [] },
+            { id: 55, sem: 9, name: 'Electiva Complementaria', uc: 4, type: 'EL', prereq: [] },
+            { id: 56, sem: 10, name: 'Servicio Comunitario', uc: 0, type: 'SC', prereq: [] },
+            { id: 57, sem: 10, name: 'Pasantía', uc: 16, type: 'PP', prereq: [44] },
+            { id: 58, sem: 10, name: 'Trabajo de Grado', uc: 0, type: 'PP', prereq: [44] },
+        ];
+
+        let progress = JSON.parse(localStorage.getItem('mallaProgress')) || {};
+        let currentId = null;
+
+        function render() {
+            const container = document.getElementById('malla');
+            container.innerHTML = '';
+
+            const semCredits = [25, 31, 33, 31, 31, 31, 30, 28];
+
+            for (let s = 1; s <= 8; s++) {
+                const sem = document.createElement('div');
+                sem.className = 'semester';
+                sem.innerHTML = `<div class="semester-title">SEMESTRE ${s}<br><span class="semester-uc">${semCredits[s-1]} UC</span></div>`;
+
+                subjects.filter(sub => sub.sem === s).forEach(sub => {
+                    const data = progress[sub.id] || { status: 'pendiente' };
+                    const div = document.createElement('div');
+                    div.className = `subject type-${sub.type} ${data.status}`;
+                    div.dataset.id = sub.id;
+                    
+                    let icon = '';
+                    if (data.status === 'aprobada') icon = '✅';
+                    else if (data.status === 'cursando') icon = '📚';
+                    else if (data.status === 'reprobada') icon = '❌';
+
+                    div.innerHTML = `
+                        ${icon ? `<span class="status-icon">${icon}</span>` : ''}
+                        <div class="subject-name">${sub.name}</div>
+                        <div class="subject-footer">
+                            <span class="subject-uc">${sub.uc} UC</span>
+                            <span class="subject-type">${sub.type}</span>
+                        </div>
+                    `;
+
+                    div.onclick = () => toggleApproved(sub.id);
+                    div.oncontextmenu = (e) => { e.preventDefault(); openModal(sub.id); };
+
+                    sem.appendChild(div);
+                });
+
+                container.appendChild(sem);
+            }
+
+            updateStats();
+            setTimeout(drawLines, 100);
+        }
+
+        function toggleApproved(id) {
+            const current = progress[id]?.status || 'pendiente';
+            progress[id] = { ...(progress[id] || {}), status: current === 'aprobada' ? 'pendiente' : 'aprobada' };
+            save();
+            render();
+        }
+
+        function openModal(id) {
+            currentId = id;
+            const sub = subjects.find(s => s.id === id);
+            const data = progress[id] || { status: 'pendiente', grade: '', prof: '', period: '', notes: '' };
+
+            document.getElementById('modal-title').textContent = sub.name;
+            document.getElementById('modal-meta').textContent = `${sub.uc} UC • ${sub.type}`;
+            document.getElementById('input-status').value = data.status;
+            document.getElementById('input-grade').value = data.grade || '';
+            document.getElementById('input-prof').value = data.prof || '';
+            document.getElementById('input-period').value = data.period || '';
+            document.getElementById('input-notes').value = data.notes || '';
+
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+            currentId = null;
+        }
+
+        function saveSubject() {
+            if (!currentId) return;
+            progress[currentId] = {
+                status: document.getElementById('input-status').value,
+                grade: document.getElementById('input-grade').value,
+                prof: document.getElementById('input-prof').value,
+                period: document.getElementById('input-period').value,
+                notes: document.getElementById('input-notes').value
+            };
+            save();
+            render();
+            closeModal();
+        }
+
+        function save() {
+            localStorage.setItem('mallaProgress', JSON.stringify(progress));
+        }
+
+        function updateStats() {
+            let aprobadas = 0, cursando = 0, ucAprobadas = 0, sumGrades = 0, countGrades = 0;
+
+            subjects.forEach(sub => {
+                const data = progress[sub.id];
+                if (data?.status === 'aprobada') {
+                    aprobadas++;
+                    ucAprobadas += sub.uc;
+                    if (data.grade) {
+                        sumGrades += parseFloat(data.grade);
+                        countGrades++;
+                    }
+                }
+                if (data?.status === 'cursando') cursando++;
+            });
+
+            document.getElementById('stat-aprobadas').textContent = aprobadas;
+            document.getElementById('stat-uc').textContent = `${ucAprobadas}/240`;
+            document.getElementById('stat-cursando').textContent = cursando;
+            document.getElementById('stat-indice').textContent = countGrades > 0 ? (sumGrades / countGrades).toFixed(2) : '0.00';
+            document.getElementById('stat-progreso').textContent = Math.round((aprobadas / subjects.length) * 100) + '%';
+        }
+
+        function drawLines() {
+            const canvas = document.getElementById('canvas');
+            const container = document.getElementById('malla');
+            canvas.width = container.scrollWidth;
+            canvas.height = container.scrollHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            subjects.forEach(sub => {
+                if (sub.prereq && sub.prereq.length > 0) {
+                    sub.prereq.forEach(prereqId => {
+                        const from = document.querySelector(`[data-id="${prereqId}"]`);
+                        const to = document.querySelector(`[data-id="${sub.id}"]`);
+                        
+                        if (from && to) {
+                            const fromRect = from.getBoundingClientRect();
+                            const toRect = to.getBoundingClientRect();
+                            const containerRect = container.getBoundingClientRect();
+
+                            const x1 = fromRect.right - containerRect.left;
+                            const y1 = fromRect.top + fromRect.height / 2 - containerRect.top;
+                            const x2 = toRect.left - containerRect.left;
+                            const y2 = toRect.top + toRect.height / 2 - containerRect.top;
+
+                            ctx.strokeStyle = '#90A4AE';
+                            ctx.lineWidth = 1.5;
+                            ctx.setLineDash([4, 3]);
+                            ctx.beginPath();
+                            ctx.moveTo(x1, y1);
+                            
+                            const cpx = x1 + (x2 - x1) / 2;
+                            ctx.bezierCurveTo(cpx, y1, cpx, y2, x2, y2);
+                            ctx.stroke();
+
+                            // Flecha
+                            ctx.setLineDash([]);
+                            const angle = Math.atan2(y2 - y1, x2 - x1);
+                            ctx.beginPath();
+                            ctx.moveTo(x2, y2);
+                            ctx.lineTo(x2 - 6 * Math.cos(angle - Math.PI / 6), y2 - 6 * Math.sin(angle - Math.PI / 6));
+                            ctx.moveTo(x2, y2);
+                            ctx.lineTo(x2 - 6 * Math.cos(angle + Math.PI / 6), y2 - 6 * Math.sin(angle + Math.PI / 6));
+                            ctx.stroke();
+                        }
+                    });
+                }
+            });
+        }
+
+        window.onclick = (e) => {
+            if (e.target.id === 'modal') closeModal();
+        };
+
+        window.addEventListener('resize', () => setTimeout(drawLines, 100));
+
+        render();
+    </script>
+</body>
+</html>
