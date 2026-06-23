@@ -103,17 +103,46 @@ function markPrerequisites(itemId) {
         return null;
     };
 
-    const item = findItem(itemId);
-    if(!item || !item.req || item.req.length === 0) return;
-
-    item.req.forEach(reqId => {
-        if(!progress[reqId]) {
-            progress[reqId] = { status: 'aprobada' };
-        } else if(progress[reqId].status === 'pendiente') {
-            progress[reqId].status = 'aprobada';
+    const findSemesterByItemId = (id) => {
+        for(let sem of mallaData) {
+            if(sem.items.find(item => item && item.id === id)) {
+                return sem.sem;
+            }
         }
-        markPrerequisites(reqId);
-    });
+        return null;
+    };
+
+    const item = findItem(itemId);
+    if(!item) return;
+
+    const itemSemester = findSemesterByItemId(itemId);
+
+    // Marcar todos los requisitos directos como aprobados
+    if(item.req && item.req.length > 0) {
+        item.req.forEach(reqId => {
+            if(!progress[reqId]) {
+                progress[reqId] = { status: 'aprobada' };
+            } else if(progress[reqId].status === 'pendiente') {
+                progress[reqId].status = 'aprobada';
+            }
+            markPrerequisites(reqId);
+        });
+    }
+
+    // Regla n+2: Si está en semestre n, marcar todos de semestres anteriores como aprobados
+    if(itemSemester) {
+        for(let sem of mallaData) {
+            if(sem.sem < itemSemester) {
+                sem.items.forEach(semItem => {
+                    if(semItem && !progress[semItem.id]) {
+                        progress[semItem.id] = { status: 'aprobada' };
+                    } else if(semItem && progress[semItem.id].status === 'pendiente') {
+                        progress[semItem.id].status = 'aprobada';
+                    }
+                });
+            }
+        }
+    }
 }
 
 function openModal(id, name, uc, tax) {
@@ -187,8 +216,12 @@ function updateStats() {
     const progreso = Math.round((aprobadas / totalItems) * 100);
     const indice = countGrades > 0 ? (sumGrades / countGrades).toFixed(2) : '0.00';
 
+    const totalUC = 240;
+    const ucFaltan = totalUC - ucAprobadas;
+
     document.getElementById('stat-aprobadas').textContent = aprobadas;
     document.getElementById('stat-uc').textContent = `${ucAprobadas}/240`;
+    document.getElementById('stat-uc-falta').textContent = `${ucFaltan} ${ucFaltan === 1 ? 'falta' : 'faltan'}`;
     document.getElementById('stat-cursando').textContent = cursando;
     document.getElementById('stat-indice').textContent = indice;
     document.getElementById('stat-progreso').textContent = `${progreso}%`;
