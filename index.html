@@ -4,379 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Malla Curricular UCAB 2023 - Interactiva</title>
-    <style>
-        :root {
-            --w-col: 140px; 
-            --gap: 20px;
-            
-            --c-blue: #008ecc;    
-            --c-teal: #00a99d;    
-            --c-green: #8cc63f;   
-            --c-yellow: #ffde17;  
-            --c-orange: #f7931e;  
-            --c-magenta: #ec008c; 
-            --c-purple: #662d91;  
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: "Arial Narrow", "Helvetica Condensed", sans-serif;
-            background: white;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 {
-            text-align: center;
-            font-size: 1.8rem;
-            margin: 0 0 5px 0;
-            text-transform: uppercase;
-            font-weight: 900;
-        }
-
-        .subtitle {
-            text-align: center;
-            font-size: 1rem;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .instructions {
-            background: #f0f0f0;
-            border-left: 4px solid #333;
-            padding: 12px;
-            margin-bottom: 20px;
-            max-width: 900px;
-            font-size: 0.85rem;
-            border-radius: 4px;
-        }
-
-        .stats-bar {
-            background: #f9f9f9;
-            border: 2px solid #333;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
-            max-width: 900px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .stat-value {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .grid-wrapper {
-            position: relative;
-            padding: 20px;
-            overflow-x: auto;
-            max-width: 100%;
-        }
-
-        canvas {
-            position: absolute;
-            top: 0; left: 0;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .main-grid {
-            display: flex;
-            gap: var(--gap);
-            position: relative;
-            z-index: 1;
-        }
-
-        .semester-col {
-            display: flex;
-            flex-direction: column;
-            gap: 15px; 
-            width: var(--w-col);
-        }
-
-        .sem-header {
-            border: 2px solid black;
-            margin-bottom: 5px;
-            background: white;
-        }
-        .sem-title {
-            background: #eee;
-            text-align: center;
-            font-weight: 900;
-            font-size: 0.8rem;
-            padding: 3px 0;
-            border-bottom: 2px solid black;
-            text-transform: uppercase;
-        }
-        .sem-stats {
-            display: flex;
-            font-size: 0.65rem;
-            text-align: center;
-        }
-        .stat-box {
-            flex: 1;
-            border-right: 1px solid black;
-            padding: 2px 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .stat-box:last-child { border-right: none; }
-        .stat-val { font-weight: bold; font-size: 0.75rem; }
-
-        .subject {
-            width: 100%;
-            height: 75px; 
-            border: 2px solid black;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            transition: transform 0.1s;
-            position: relative;
-            z-index: 2;
-        }
-
-        .spacer {
-            width: 100%;
-            height: 75px;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .subject:hover { 
-            transform: scale(1.05); 
-            z-index: 10;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .subject.aprobada { 
-            opacity: 0.5; 
-            background-color: #ddd !important; 
-            border-color: #999;
-        }
-        
-        .subject.cursando { 
-            box-shadow: 0 0 0 4px #2196F3; 
-            border-color: #2196F3; 
-            z-index: 5;
-        }
-
-        .subject.reprobada {
-            box-shadow: 0 0 0 4px #f44336;
-            border-color: #f44336;
-            z-index: 5;
-        }
-
-        .status-badge {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            font-size: 1rem;
-            z-index: 3;
-        }
-
-        .sub-name {
-            flex: 1;
-            font-size: 0.6rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2px 4px;
-            color: black;
-            line-height: 1;
-            border-bottom: 1px solid black;
-        }
-        
-        .bg-blue .sub-name { background: var(--c-blue); color: white; }
-        .bg-teal .sub-name { background: var(--c-teal); color: white; }
-        .bg-green .sub-name { background: var(--c-green); color: black; }
-        .bg-yellow .sub-name { background: var(--c-yellow); color: black; }
-        .bg-orange .sub-name { background: var(--c-orange); color: black; }
-        .bg-magenta .sub-name { background: var(--c-magenta); color: white; }
-        .bg-purple .sub-name { background: var(--c-purple); color: white; }
-
-        .sub-data { height: 32px; display: flex; flex-direction: column; }
-        .d-row { display: flex; flex: 1; border-bottom: 1px solid black; }
-        .d-row:last-child { border-bottom: none; }
-        .d-cell {
-            flex: 1;
-            border-right: 1px solid black;
-            font-size: 0.55rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .d-cell:last-child { border-right: none; }
-
-        .footer-area {
-            width: 100%;
-            max-width: 1200px;
-            margin-top: 30px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .legend {
-            border: 2px solid black;
-            padding: 10px;
-            font-size: 0.7rem;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .l-item { display: flex; align-items: center; gap: 6px; }
-        .l-box { width: 12px; height: 12px; border: 1px solid black; }
-
-        .extra-blocks {
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
-        }
-
-        .special-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-        .mini-box {
-            border: 2px solid black;
-            font-size: 0.5rem;
-            padding: 2px;
-            text-align: center;
-            width: 100%;
-            font-weight: bold;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            background: rgba(0,0,0,0.6); 
-            z-index: 100;
-            justify-content: center; 
-            align-items: center;
-        }
-        
-        .modal-box {
-            background: white; 
-            padding: 25px; 
-            border-radius: 8px; 
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
-        }
-
-        .modal-header h3 {
-            margin: 0 0 8px 0;
-            color: #333;
-            font-size: 1.2rem;
-        }
-
-        .modal-meta {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .close-x {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            color: #999;
-            line-height: 1;
-        }
-        
-        .close-x:hover {
-            color: #333;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            color: #333;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-family: inherit;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #333;
-        }
-        
-        .modal-btn {
-            width: 100%;
-            margin-top: 10px; 
-            padding: 12px 15px; 
-            cursor: pointer;
-            background: #333; 
-            color: white; 
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        
-        .modal-btn:hover {
-            background: #555;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -384,20 +12,20 @@
     <div class="subtitle">SEDES CARACAS Y GUAYANA - SEPTIEMBRE 2023</div>
 
     <div class="instructions">
-        <strong>💡 Instrucciones:</strong> 
-        <strong>Click izquierdo</strong> en una materia para marcarla como aprobada/pendiente • 
-        <strong>Click derecho</strong> para abrir el menú completo (nota, profesor, período, etc.) • 
+        <strong>💡 Instrucciones:</strong>
+        <strong>Click izquierdo</strong> en una materia para marcarla como aprobada/pendiente •
+        <strong>Click derecho</strong> para abrir el menú completo (nota, profesor, período, etc.) •
         Los datos se guardan automáticamente en tu navegador
     </div>
 
     <div class="stats-bar">
         <div class="stat-item">
             <div class="stat-label">Aprobadas</div>
-            <div class="stat-value" style="color: #4CAF50;" id="stat-aprobadas">0</div>
+            <div class="stat-value" style="color: #7ec850;" id="stat-aprobadas">0</div>
         </div>
         <div class="stat-item">
             <div class="stat-label">UC Aprobadas</div>
-            <div class="stat-value" style="color: #008ecc;" id="stat-uc">0/240</div>
+            <div class="stat-value" style="color: #0066dd;" id="stat-uc">0/240</div>
         </div>
         <div class="stat-item">
             <div class="stat-label">Cursando</div>
@@ -409,7 +37,7 @@
         </div>
         <div class="stat-item">
             <div class="stat-label">Progreso</div>
-            <div class="stat-value" style="color: #8cc63f;" id="stat-progreso">0%</div>
+            <div class="stat-value" style="color: #7ec850;" id="stat-progreso">0%</div>
         </div>
     </div>
 
@@ -434,21 +62,21 @@
             <div class="special-container" style="width: 140px;">
                 <div class="mini-box">CURSO DE<br>SERVICIO COMUNITARIO</div>
                 <div class="subject" style="height: 50px;">
-                    <div class="sub-name" style="background:white; color:black; border-bottom:1px solid black">SERVICIO COMUNITARIO</div>
+                    <div class="sub-name" style="background:white; color:black; border-bottom:1px solid #e0e0e0">SERVICIO COMUNITARIO</div>
                     <div class="sub-data" style="height:25px">
                         <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">SC</div></div>
                     </div>
                 </div>
             </div>
             <div class="subject" style="width: 140px;">
-                <div class="sub-name bg-magenta" style="background:var(--c-magenta); color:white">PASANTÍA</div>
+                <div class="sub-name bg-magenta">PASANTÍA</div>
                 <div class="sub-data">
                     <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">PP</div></div>
                     <div class="d-row"><div class="d-cell">0</div><div class="d-cell">16</div><div class="d-cell">16</div><div class="d-cell" style="font-weight:bold">4</div></div>
                 </div>
             </div>
             <div class="subject" style="width: 140px;">
-                <div class="sub-name bg-magenta" style="background:var(--c-magenta); color:white">TRABAJO DE GRADO</div>
+                <div class="sub-name bg-magenta">TRABAJO DE GRADO</div>
                 <div class="sub-data">
                     <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">PP</div></div>
                     <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell" style="font-weight:bold">21</div></div>
@@ -464,7 +92,7 @@
                 <h3 id="m-title">Materia</h3>
                 <div class="modal-meta" id="m-meta"></div>
             </div>
-            
+
             <div class="form-group">
                 <label>Estado</label>
                 <select id="m-status">
@@ -474,333 +102,33 @@
                     <option value="reprobada">❌ Reprobada</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label>Nota (0-20)</label>
                 <input type="number" id="m-grade" min="0" max="20" step="0.01" placeholder="Ej: 16.5">
             </div>
-            
+
             <div class="form-group">
                 <label>Profesor</label>
                 <input type="text" id="m-prof" placeholder="Nombre del profesor">
             </div>
-            
+
             <div class="form-group">
                 <label>Período</label>
                 <input type="text" id="m-period" placeholder="Ej: Sep-Ene 2024">
             </div>
-            
+
             <div class="form-group">
                 <label>Notas / Enlaces</label>
                 <textarea id="m-notes" rows="3" placeholder="Drive, Classroom, apuntes personales..."></textarea>
             </div>
-            
+
             <button class="modal-btn" onclick="saveFromModal()">💾 Guardar Cambios</button>
         </div>
     </div>
 
-<script>
-    const mallaData = [
-        { sem: 1, stats: {ht:8, hp:8, hl:3, uc:25}, items: [
-            { id:1, name:"ÁLGEBRA Y TRIGONOMETRÍA", type:"bg-blue", tax:"FI", uc:5, req:[] },
-            { id:2, name:"PRINCIPIOS DE MARKETING", type:"bg-teal", tax:"FG", uc:5, req:[] },
-            null, 
-            { id:3, name:"LÓGICA", type:"bg-green", tax:"CC", uc:4, req:[] },
-            { id:4, name:"FUNDAMENTOS DE PROGRAMACIÓN", type:"bg-green", tax:"CC", uc:3, req:[] },
-            { id:5, name:"COMPETENCIA TEXTUAL EN ESPAÑOL", type:"bg-yellow", tax:"IN", uc:5, req:[] },
-            { id:6, name:"IDENTIDAD, LIDERAZGO Y COMPROMISO I", type:"bg-yellow", tax:"IN", uc:3, req:[] }
-        ]},
-        { sem: 2, stats: {ht:9, hp:12, hl:5, uc:31}, items: [
-            { id:7, name:"CÁLCULO DIFERENCIAL", type:"bg-blue", tax:"FI", uc:6, req:[1] },
-            { id:8, name:"ÁLGEBRA LINEAL", type:"bg-blue", tax:"FI", uc:6, req:[1] },
-            null,
-            { id:9, name:"MATEMÁTICAS DISCRETAS", type:"bg-green", tax:"CC", uc:6, req:[3] },
-            { id:10, name:"ALGORITMOS Y PROGRAMACIÓN", type:"bg-green", tax:"CC", uc:3, req:[4] },
-            { id:11, name:"ALGORITMOS Y ESTRUCTURAS DE DATOS", type:"bg-green", tax:"CC", uc:7, req:[4] },
-            { id:12, name:"IDENTIDAD, LIDERAZGO Y COMPROMISO II", type:"bg-yellow", tax:"IN", uc:3, req:[6] }
-        ]},
-        { sem: 3, stats: {ht:12, hp:12, hl:2, uc:33}, items: [
-            { id:13, name:"CÁLCULO INTEGRAL", type:"bg-blue", tax:"FI", uc:5, req:[7] },
-            { id:14, name:"FÍSICA GENERAL", type:"bg-blue", tax:"FI", uc:6, req:[7] },
-            { id:15, name:"CONTABILIDAD FINANCIERA", type:"bg-teal", tax:"FG", uc:5, req:[] },
-            { id:16, name:"ECOLOGÍA, AMBIENTE Y SUSTENTABILIDAD", type:"bg-yellow", tax:"IN", uc:3, req:[] },
-            { id:17, name:"PROGRAMACIÓN ORIENTADA A OBJETOS", type:"bg-green", tax:"CC", uc:7, req:[10] },
-            { id:18, name:"SISTEMAS DE INFORMACIÓN", type:"bg-magenta", tax:"IS", uc:4, req:[] },
-            { id:19, name:"INNOVACIÓN Y EMPRENDIMIENTO", type:"bg-yellow", tax:"IN", uc:3, req:[] }
-        ]},
-        { sem: 4, stats: {ht:12, hp:10, hl:3, uc:31}, items: [
-            { id:20, name:"CÁLCULO VECTORIAL", type:"bg-blue", tax:"FI", uc:5, req:[13] },
-            { id:21, name:"ECUACIONES DIFERENCIALES ORDINARIAS", type:"bg-blue", tax:"FI", uc:4, req:[13] },
-            { id:22, name:"INGENIERÍA ECONÓMICA", type:"bg-teal", tax:"FG", uc:4, req:[15] },
-            { id:23, name:"ORGANIZACIÓN DEL COMPUTADOR", type:"bg-orange", tax:"TE", uc:5, req:[] },
-            { id:24, name:"PROGRAMACIÓN ORIENTADA A LA WEB", type:"bg-green", tax:"CC", uc:3, req:[17] },
-            { id:25, name:"INGENIERÍA DE SOFTWARE", type:"bg-magenta", tax:"IS", uc:5, req:[18] },
-            { id:26, name:"INTERACCIÓN HUMANO-COMPUTADOR", type:"bg-magenta", tax:"IS", uc:5, req:[] }
-        ]},
-        { sem: 5, stats: {ht:10, hp:11, hl:5, uc:31}, items: [
-            { id:27, name:"PROBABILIDAD Y ESTADÍSTICA", type:"bg-teal", tax:"FG", uc:5, req:[20] },
-            { id:28, name:"ELECTRICIDAD Y MAGNETISMO", type:"bg-blue", tax:"FI", uc:6, req:[14] },
-            { id:29, name:"LABORATORIO DE FÍSICA", type:"bg-blue", tax:"FI", uc:2, req:[14] },
-            { id:30, name:"SISTEMAS OPERATIVOS", type:"bg-orange", tax:"TE", uc:5, req:[23] },
-            { id:31, name:"TÓPICOS ESPECIALES DE PROGRAMACIÓN", type:"bg-green", tax:"CC", uc:3, req:[24] },
-            { id:32, name:"GESTIÓN DE PROYECTOS DE SOFTWARE", type:"bg-magenta", tax:"IS", uc:4, req:[25] },
-            { id:33, name:"SISTEMAS DE BASES DE DATOS", type:"bg-magenta", tax:"IS", uc:6, req:[18] },
-        ]},
-        { sem: 6, stats: {ht:11, hp:8, hl:6, uc:31}, items: [
-            { id:34, name:"MÉTODOS NUMÉRICOS", type:"bg-blue", tax:"FI", uc:2, req:[21, 27] },
-            { id:35, name:"ARQUITECTURA DEL COMPUTADOR APLICADA", type:"bg-orange", tax:"TE", uc:7, req:[30] },
-            { id:36, name:"INGLÉS I", type:"bg-yellow", tax:"IN", uc:4, req:[] },
-            { id:37, name:"REDES DE COMUNICACIÓN DE DATOS", type:"bg-orange", tax:"TE", uc:6, req:[30] },
-            { id:38, name:"ASEGURAMIENTO DE LA CALIDAD DEL SW", type:"bg-magenta", tax:"IS", uc:4, req:[25] },
-            { id:39, name:"INGENIERÍA DE REQUISITOS", type:"bg-magenta", tax:"IS", uc:4, req:[25] },
-            { id:40, name:"TÓPICOS ESPECIALES PARA GESTIÓN DE DATOS", type:"bg-magenta", tax:"IS", uc:4, req:[33] }
-        ]},
-        { sem: 7, stats: {ht:9, hp:5, hl:11, uc:30}, items: [
-            { id:41, name:"INVESTIGACIÓN DE OPERACIONES", type:"bg-teal", tax:"FG", uc:5, req:[27] },
-            { id:42, name:"INTELIGENCIA ARTIFICIAL Y MACHINE LEARNING", type:"bg-green", tax:"CC", uc:4, req:[27, 10] },
-            { id:43, name:"INGLÉS II", type:"bg-yellow", tax:"IN", uc:4, req:[36] },
-            { id:44, name:"CIBERSEGURIDAD", type:"bg-orange", tax:"TE", uc:5, req:[37] },
-            { id:45, name:"INTELIGENCIA DE NEGOCIOS", type:"bg-magenta", tax:"IS", uc:3, req:[33] },
-            { id:46, name:"DESARROLLO DE SOFTWARE", type:"bg-magenta", tax:"IS", uc:5, req:[25] },
-            { id:47, name:"ELECTIVA INFO I", type:"bg-purple", tax:"EL", uc:4, req:[] }
-        ]},
-        { sem: 8, stats: {ht:12, hp:9, hl:0, uc:28}, items: [
-            { id:48, name:"EVALUACIÓN DE SISTEMAS INFORMÁTICOS", type:"bg-teal", tax:"FG", uc:4, req:[] },
-            { id:49, name:"ÉTICA PROFESIONAL", type:"bg-yellow", tax:"IN", uc:3, req:[] },
-            { id:50, name:"INGLÉS TÉCNICO", type:"bg-yellow", tax:"IN", uc:4, req:[43] },
-            { id:51, name:"COMPUTACIÓN EN LA NUBE", type:"bg-orange", tax:"TE", uc:5, req:[37] },
-            { id:52, name:"ARQUITECTURAS EMPRESARIALES", type:"bg-magenta", tax:"IS", uc:4, req:[] },
-            { id:53, name:"ELECTIVA COMPLEMENTARIA", type:"bg-purple", tax:"EL", uc:4, req:[] },
-            { id:54, name:"ELECTIVA INFO II", type:"bg-purple", tax:"EL", uc:4, req:[] }
-        ]}
-    ];
-
-    let progress = JSON.parse(localStorage.getItem('ucabProgressV4')) || {};
-    let currentEditId = null;
-
-    function init() {
-        const grid = document.getElementById('grid-container');
-        grid.innerHTML = '';
-
-        mallaData.forEach(colData => {
-            const col = document.createElement('div');
-            col.className = 'semester-col';
-
-            col.innerHTML = `
-                <div class="sem-header">
-                    <div class="sem-title">0${colData.sem} SEMESTRE</div>
-                    <div class="sem-stats">
-                        <div class="stat-box"><span class="stat-val">${colData.stats.ht}</span> HT</div>
-                        <div class="stat-box"><span class="stat-val">${colData.stats.hp}</span> HP</div>
-                        <div class="stat-box"><span class="stat-val">${colData.stats.hl}</span> HL</div>
-                    </div>
-                    <div class="sem-stats" style="border-top:1px solid black">
-                        <div class="stat-box" style="flex:2">UC ACUM</div>
-                        <div class="stat-box" style="flex:1; background:#eee">${colData.stats.uc}</div>
-                    </div>
-                </div>
-            `;
-
-            colData.items.forEach(item => {
-                if(item === null) {
-                    const spacer = document.createElement('div');
-                    spacer.className = 'spacer';
-                    col.appendChild(spacer);
-                } else {
-                    const data = progress[item.id] || { status: 'pendiente' };
-                    const card = document.createElement('div');
-                    card.className = `subject ${item.type} ${data.status}`;
-                    card.id = `sub-${item.id}`;
-                    
-                    let badge = '';
-                    if(data.status === 'aprobada') badge = '✅';
-                    else if(data.status === 'cursando') badge = '📚';
-                    else if(data.status === 'reprobada') badge = '❌';
-                    
-                    card.innerHTML = `
-                        ${badge ? `<span class="status-badge">${badge}</span>` : ''}
-                        <div class="sub-name">${item.name}</div>
-                        <div class="sub-data">
-                            <div class="d-row">
-                                <div class="d-cell">2</div><div class="d-cell">2</div><div class="d-cell">0</div><div class="d-cell">${item.tax}</div>
-                            </div>
-                            <div class="d-row">
-                                <div class="d-cell">4</div><div class="d-cell">6</div><div class="d-cell">12</div><div class="d-cell" style="font-weight:bold">${item.uc}</div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // Click izquierdo: toggle aprobada/pendiente
-                    card.onclick = () => toggleApproved(item.id);
-                    
-                    // Click derecho: modal completo
-                    card.oncontextmenu = (e) => {
-                        e.preventDefault();
-                        openModal(item.id, item.name, item.uc, item.tax);
-                    };
-                    
-                    col.appendChild(card);
-                }
-            });
-            grid.appendChild(col);
-        });
-
-        updateStats();
-        setTimeout(drawArrows, 200);
-    }
-
-    // Toggle rápido entre aprobada y pendiente (click izquierdo)
-    function toggleApproved(id) {
-        const current = progress[id] || { status: 'pendiente' };
-        const newStatus = current.status === 'aprobada' ? 'pendiente' : 'aprobada';
-        
-        progress[id] = {
-            ...current,
-            status: newStatus
-        };
-        
-        saveProgress();
-        init();
-    }
-
-    // Abrir modal completo (click derecho)
-    function openModal(id, name, uc, tax) {
-        currentEditId = id;
-        const data = progress[id] || { status: 'pendiente', grade: '', prof: '', period: '', notes: '' };
-        
-        document.getElementById('m-title').textContent = name;
-        document.getElementById('m-meta').textContent = `${uc} UC • ${tax}`;
-        document.getElementById('m-status').value = data.status;
-        document.getElementById('m-grade').value = data.grade || '';
-        document.getElementById('m-prof').value = data.prof || '';
-        document.getElementById('m-period').value = data.period || '';
-        document.getElementById('m-notes').value = data.notes || '';
-        
-        document.getElementById('modal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-        currentEditId = null;
-    }
-
-    function saveFromModal() {
-        if(!currentEditId) return;
-        
-        progress[currentEditId] = {
-            status: document.getElementById('m-status').value,
-            grade: document.getElementById('m-grade').value,
-            prof: document.getElementById('m-prof').value,
-            period: document.getElementById('m-period').value,
-            notes: document.getElementById('m-notes').value
-        };
-        
-        saveProgress();
-        init();
-        closeModal();
-    }
-
-    function saveProgress() {
-        localStorage.setItem('ucabProgressV4', JSON.stringify(progress));
-    }
-
-    function updateStats() {
-        let aprobadas = 0, cursando = 0, reprobadas = 0;
-        let ucAprobadas = 0;
-        let sumGrades = 0, countGrades = 0;
-
-        mallaData.forEach(sem => {
-            sem.items.forEach(item => {
-                if(!item) return;
-                const data = progress[item.id];
-                
-                if(data?.status === 'aprobada') {
-                    aprobadas++;
-                    ucAprobadas += item.uc;
-                    if(data.grade) {
-                        const grade = parseFloat(data.grade);
-                        if(!isNaN(grade)) {
-                            sumGrades += grade;
-                            countGrades++;
-                        }
-                    }
-                }
-                if(data?.status === 'cursando') cursando++;
-                if(data?.status === 'reprobada') reprobadas++;
-            });
-        });
-
-        const totalItems = mallaData.reduce((sum, sem) => 
-            sum + sem.items.filter(i => i !== null).length, 0);
-        const progreso = Math.round((aprobadas / totalItems) * 100);
-        const indice = countGrades > 0 ? (sumGrades / countGrades).toFixed(2) : '0.00';
-
-        document.getElementById('stat-aprobadas').textContent = aprobadas;
-        document.getElementById('stat-uc').textContent = `${ucAprobadas}/240`;
-        document.getElementById('stat-cursando').textContent = cursando;
-        document.getElementById('stat-indice').textContent = indice;
-        document.getElementById('stat-progreso').textContent = `${progreso}%`;
-    }
-
-    function drawArrows() {
-        const canvas = document.getElementById('connections');
-        const container = document.getElementById('grid-container');
-        
-        canvas.width = container.scrollWidth;
-        canvas.height = container.scrollHeight;
-        const ctx = canvas.getContext('2d');
-        const rectC = container.getBoundingClientRect();
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        mallaData.forEach(col => {
-            col.items.forEach(item => {
-                if(item && item.req.length > 0) {
-                    const elTo = document.getElementById(`sub-${item.id}`);
-                    if(!elTo) return;
-                    
-                    const rTo = elTo.getBoundingClientRect();
-                    const xTo = rTo.left - rectC.left;
-                    const yTo = rTo.top + rTo.height/2 - rectC.top;
-
-                    item.req.forEach(reqId => {
-                        const elFrom = document.getElementById(`sub-${reqId}`);
-                        if(!elFrom) return;
-                        
-                        const rFrom = elFrom.getBoundingClientRect();
-                        const xFrom = rFrom.right - rectC.left;
-                        const yFrom = rFrom.top + rFrom.height/2 - rectC.top;
-
-                        ctx.beginPath();
-                        ctx.strokeStyle = '#333';
-                        ctx.lineWidth = 1.5;
-                        
-                        const midX = xFrom + (xTo - xFrom) / 2;
-
-                        ctx.moveTo(xFrom, yFrom);
-                        ctx.lineTo(midX, yFrom);
-                        ctx.lineTo(midX, yTo);
-                        ctx.lineTo(xTo, yTo);
-                        ctx.stroke();
-
-                        // Flecha
-                        ctx.beginPath();
-                        ctx.fillStyle = '#333';
-                        ctx.moveTo(xTo, yTo);
-                        ctx.lineTo(xTo - 6, yTo - 3);
-                        ctx.lineTo(xTo - 6, yTo + 3);
-                        ctx.fill();
-                    });
-                }
-            });
-        });
-    }
-
-    window.onresize = drawArrows;
-    window.onclick = (e) => { if(e.target.id === 'modal') closeModal(); };
-
-    init();
-</script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
 
 </body>
 </html>
