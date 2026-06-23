@@ -70,5 +70,10 @@ const mallaData = [
         { id:52, name:"ARQUITECTURAS EMPRESARIALES", type:"bg-magenta", tax:"IS", uc:4, req:[] },
         { id:53, name:"ELECTIVA COMPLEMENTARIA", type:"bg-purple", tax:"EL", uc:4, req:[] },
         { id:54, name:"ELECTIVA INFO II", type:"bg-purple", tax:"EL", uc:4, req:[] }
+    ]},
+    { sem: 9, stats: {ht:0, hp:0, hl:0, uc:25}, items: [
+        { id:55, name:"SERVICIO COMUNITARIO", type:"", tax:"SC", uc:0, req:[] },
+        { id:56, name:"PASANTÍA", type:"bg-magenta", tax:"PP", uc:4, req:[] },
+        { id:57, name:"TRABAJO DE GRADO", type:"bg-magenta", tax:"PP", uc:21, req:[] }
     ]}
 ];

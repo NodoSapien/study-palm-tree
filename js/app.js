@@ -6,6 +6,9 @@ function init() {
     grid.innerHTML = '';
 
     mallaData.forEach(colData => {
+        // Skip special semester 9 in grid, it goes to footer
+        if(colData.sem === 9) return;
+
         const col = document.createElement('div');
         col.className = 'semester-col';
 
@@ -65,8 +68,70 @@ function init() {
         grid.appendChild(col);
     });
 
+    // Generate special items in footer
+    generateExtraBlocks();
+
     updateStats();
     setTimeout(drawArrows, 200);
+}
+
+function generateExtraBlocks() {
+    const container = document.getElementById('extra-blocks-container');
+    container.innerHTML = '';
+
+    const specialSem = mallaData.find(s => s.sem === 9);
+    if(!specialSem) return;
+
+    specialSem.items.forEach((item, idx) => {
+        const data = progress[item.id] || { status: 'pendiente' };
+
+        let badge = '';
+        if(data.status === 'aprobada') badge = '✅';
+        else if(data.status === 'cursando') badge = '📚';
+        else if(data.status === 'reprobada') badge = '❌';
+
+        let blockHTML = '';
+
+        if(idx === 0) {
+            // SERVICIO COMUNITARIO with label
+            blockHTML = `
+                <div class="special-container" style="width: 140px;">
+                    <div class="mini-box">CURSO DE<br>SERVICIO COMUNITARIO</div>
+                    <div class="subject" style="height: 50px;" id="sub-${item.id}">
+                        ${badge ? `<span class="status-badge">${badge}</span>` : ''}
+                        <div class="sub-name" style="background:white; color:black; border-bottom:1px solid #e0e0e0">${item.name}</div>
+                        <div class="sub-data" style="height:25px">
+                            <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">${item.tax}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // PASANTÍA and TRABAJO DE GRADO
+            blockHTML = `
+                <div class="subject" style="width: 140px;" id="sub-${item.id}">
+                    ${badge ? `<span class="status-badge">${badge}</span>` : ''}
+                    <div class="sub-name ${item.type}">${item.name}</div>
+                    <div class="sub-data">
+                        <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">${item.tax}</div></div>
+                        <div class="d-row"><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell">0</div><div class="d-cell" style="font-weight:bold">${item.uc}</div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const blockEl = document.createElement('div');
+        blockEl.innerHTML = blockHTML;
+        const card = blockEl.querySelector('.subject');
+
+        card.onclick = () => toggleApproved(item.id);
+        card.oncontextmenu = (e) => {
+            e.preventDefault();
+            openModal(item.id, item.name, item.uc, item.tax);
+        };
+
+        container.appendChild(blockEl.firstElementChild);
+    });
 }
 
 function toggleApproved(id) {
