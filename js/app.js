@@ -71,15 +71,49 @@ function init() {
 
 function toggleApproved(id) {
     const current = progress[id] || { status: 'pendiente' };
-    const newStatus = current.status === 'aprobada' ? 'pendiente' : 'aprobada';
+
+    const stateCycle = {
+        'pendiente': 'cursando',
+        'cursando': 'aprobada',
+        'aprobada': 'pendiente'
+    };
+
+    const newStatus = stateCycle[current.status];
 
     progress[id] = {
         ...current,
         status: newStatus
     };
 
+    if(newStatus === 'aprobada') {
+        markPrerequisites(id);
+    }
+
     saveProgress();
     init();
+}
+
+function markPrerequisites(itemId) {
+    const findItem = (id) => {
+        for(let sem of mallaData) {
+            for(let item of sem.items) {
+                if(item && item.id === id) return item;
+            }
+        }
+        return null;
+    };
+
+    const item = findItem(itemId);
+    if(!item || !item.req || item.req.length === 0) return;
+
+    item.req.forEach(reqId => {
+        if(!progress[reqId]) {
+            progress[reqId] = { status: 'aprobada' };
+        } else if(progress[reqId].status === 'pendiente') {
+            progress[reqId].status = 'aprobada';
+        }
+        markPrerequisites(reqId);
+    });
 }
 
 function openModal(id, name, uc, tax) {
